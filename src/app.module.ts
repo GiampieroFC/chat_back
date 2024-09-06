@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { MessagesModule } from './messages/messages.module';
+import { ChatRoomsModule } from './chat-rooms/chat-rooms.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MessagesModule } from './messages/messages.module';
     AuthModule,
     UsersModule,
     MessagesModule,
+    ChatRoomsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
