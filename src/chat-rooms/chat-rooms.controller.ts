@@ -5,7 +5,7 @@ import { UpdateChatRoomDto } from './dto/update-chat-room.dto';
 
 @Controller('chat-rooms')
 export class ChatRoomsController {
-  constructor(private readonly chatRoomsService: ChatRoomsService) {}
+  constructor(private readonly chatRoomsService: ChatRoomsService) { }
 
   @Post()
   create(@Body() createChatRoomDto: CreateChatRoomDto) {

@@ -1,9 +1,9 @@
-import { IsString, MinLength, IsPhoneNumber, IsOptional, IsEmail, IsLowercase, IsUrl, IsNumber, IsPositive, Min, Max } from "class-validator";
+import { IsString, MinLength, IsPhoneNumber, IsOptional, IsEmail, IsLowercase, IsUrl, IsNumber, IsPositive, Min, Max, IsMongoId } from "class-validator";
 
 export class CreateUserDto {
 
     @IsString()
-    @MinLength(3)
+    @MinLength(2)
     username: string;
 
     @IsString()
@@ -33,9 +33,6 @@ export class CreateUserDto {
     avatar?: string;
 
     @IsOptional()
-    @IsNumber()
-    @IsPositive()
-    @Min(1)
-    @Max(3)
-    roleId?: number;
+    @IsMongoId()
+    roleId?: string;
 }
