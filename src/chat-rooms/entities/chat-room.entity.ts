@@ -1,6 +1,6 @@
 import { Prop, SchemaFactory, Schema } from "@nestjs/mongoose";
 import { Document, Schema as MongooseSchema } from "mongoose";
-import { Role } from "src/roles/entities/role.entity";
+import { Role, RoleName } from "src/roles/entities/role.entity";
 import { User } from "src/users/entities/user.entity";
 
 const ObjectId = MongooseSchema.Types.ObjectId;
@@ -40,14 +40,14 @@ export class ChatRoom extends Document {
             required: true,
         },
         role: {
-            type: ObjectId,
-            ref: Role.name,
+            type: String,
+            enum: RoleName,
             required: true,
         }
     }])
     members: Array<{
         user: string;
-        role: string;
+        role: RoleName;
     }>;
 
     @Prop()

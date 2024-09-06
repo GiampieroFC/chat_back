@@ -1,14 +1,15 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsEnum, IsOptional, IsString } from "class-validator";
+import { RoleName } from "../entities/role.entity";
 
 export class CreateRoleDto {
 
+    @IsEnum(RoleName, { message: 'role must be one of the values: ' + Object.values(RoleName).join(', ') })
+    @IsOptional()
     @IsString()
-    name: string;
+    name: RoleName;
 
     @IsString()
     @IsOptional()
     description: string;
 
-    @IsString({ each: true })
-    permissions: string[];
 }

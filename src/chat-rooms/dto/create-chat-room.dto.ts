@@ -1,15 +1,17 @@
 import { ChatRoomType } from "../entities/chat-room.entity";
 import { IsOptional, IsString, MinLength, IsEnum, IsMongoId, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
+import { RoleName } from "src/roles/entities/role.entity";
 
 export class ChatRoomMemberDto {
     @IsMongoId()
     @IsString()
     user: string;
 
-    @IsMongoId()
+    @IsEnum(RoleName, { message: 'role must be one of the values: ' + Object.values(RoleName).join(', ') })
+    @IsOptional()
     @IsString()
-    role: string;
+    role: RoleName;
 }
 
 export class CreateChatRoomDto {

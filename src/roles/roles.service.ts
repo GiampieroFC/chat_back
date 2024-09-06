@@ -10,7 +10,7 @@ export class RolesService {
 
   constructor(
 
-    @InjectModel('Role')
+    @InjectModel(Role.name)
     private readonly roleModel: Model<Role>
 
   ) { }

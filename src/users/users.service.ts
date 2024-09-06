@@ -5,7 +5,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import { isValidObjectId, Model } from 'mongoose';
 import { hashSync } from 'bcryptjs';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {

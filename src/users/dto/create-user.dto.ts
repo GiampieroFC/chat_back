@@ -1,4 +1,5 @@
-import { IsString, MinLength, IsPhoneNumber, IsOptional, IsEmail, IsLowercase, IsUrl, IsNumber, IsPositive, Min, Max, IsMongoId } from "class-validator";
+import { IsString, MinLength, IsPhoneNumber, IsOptional, IsEmail, IsLowercase, IsUrl, IsMongoId, IsEnum } from "class-validator";
+import { RoleName } from "src/roles/entities/role.entity";
 
 export class CreateUserDto {
 
@@ -32,7 +33,8 @@ export class CreateUserDto {
     @IsUrl()
     avatar?: string;
 
+    @IsEnum(RoleName, { message: 'role must be one of the values: ' + Object.values(RoleName).join(', ') })
     @IsOptional()
-    @IsMongoId()
-    roleId?: string;
+    @IsString()
+    role?: string;
 }

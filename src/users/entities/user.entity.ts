@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Role } from 'src/roles/entities/role.entity';
+import { Role, RoleName } from 'src/roles/entities/role.entity';
 
 
 @Schema({ timestamps: true })
@@ -30,9 +30,12 @@ export class User extends Document {
     @Prop({ default: false })
     isDeleted: boolean;
 
-    @Prop({ type: Types.ObjectId, ref: Role.name })
-    rolesId?: Types.ObjectId;
-
+    @Prop({
+        enum: RoleName,
+        type: String,
+        ref: Role.name
+    })
+    role?: RoleName;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
