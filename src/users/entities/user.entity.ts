@@ -6,7 +6,7 @@ import { Role } from 'src/auth/entities/role.entity';
 @Schema({ timestamps: true })
 export class User extends Document {
 
-    @Prop({ required: true })
+    @Prop({ unique: true, required: true, index: true })
     username: string;
 
     @Prop({ required: true })
@@ -18,7 +18,7 @@ export class User extends Document {
     @Prop({ type: String })
     phone?: string;
 
-    @Prop({ unique: true, required: true })
+    @Prop({ unique: true, required: true, index: true })
     email: string;
 
     @Prop({ required: true })
