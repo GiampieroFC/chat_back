@@ -38,12 +38,7 @@ export class MessagesController {
     @Param('id') id: string,
     @Body() updateMessageDto: UpdateMessageDto
   ) {
-    try {
-      const result = await this.messagesService.update(id, updateMessageDto);
-      return result;
-    } catch (error) {
-      throw new InternalServerErrorException('An error occurred while updating the message');
-    }
+    return this.messagesService.update(id, updateMessageDto);
   }
 
 

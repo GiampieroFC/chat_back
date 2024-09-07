@@ -45,31 +45,12 @@ export class MessagesService {
   }
 
   async update(id: string, updateMessageDto: UpdateMessageDto) {
-    try {
-      // Verificar si el id es un ObjectId válido
-      if (!Types.ObjectId.isValid(id)) {
-        throw new NotFoundException('Invalid message ID');
-      }
 
-      // Log the received parameters
-      console.log('Updating message with ID:', id);
-      console.log('Update data:', updateMessageDto);
+    // aquí podemos usar nuestro método anterior de esta misma clase: findOne(), así no tenemos que reescribir las validaciones y ya maneja los errores
+    await this.findOne(id); // esto siempre devuelve el recurso, porque si no es un id válido o no existe este método ya maneja los errores
 
-      const updatedMessage = await this.messageModel.findByIdAndUpdate(id, updateMessageDto, { new: true });
-
-      // Log the result
-      console.log('Updated message:', updatedMessage);
-
-      if (!updatedMessage) {
-        throw new NotFoundException('Message not found');
-      }
-
-      return updatedMessage;
-    } catch (error) {
-      // Log the error details
-      console.error('Error updating message:', error);
-      throw new InternalServerErrorException('An error occurred while updating the message');
-    }
+    // aquí ya estamos seguros que existe el recurso, así que podemos actualizarlo
+    return this.messageModel.findByIdAndUpdate(id, updateMessageDto, { new: true });
   }
 
 
