@@ -35,7 +35,7 @@ export class MessagesController {
 
   @Patch(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() updateMessageDto: UpdateMessageDto
   ) {
     try {
@@ -48,7 +48,7 @@ export class MessagesController {
 
 
   @Delete(':id')
-  async remove(@Param('id') id: number) {
+  async remove(@Param('id') id: string) {
     try {
       const result = await this.messagesService.remove(id);
       return { message: result };

@@ -44,7 +44,7 @@ export class MessagesService {
 
   }
 
-  async update(id: number, updateMessageDto: UpdateMessageDto) {
+  async update(id: string, updateMessageDto: UpdateMessageDto) {
     try {
       // Verificar si el id es un ObjectId válido
       if (!Types.ObjectId.isValid(id)) {
@@ -73,7 +73,7 @@ export class MessagesService {
   }
 
 
-  async remove(id: number) {
+  async remove(id: string) {
     if (!isValidObjectId(id)) {
       throw new BadRequestException(`Invalid message ID: ${id}`);
     }
