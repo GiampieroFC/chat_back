@@ -25,3 +25,6 @@ export class Role extends Document {
 }
 
 export const RoleSchema = SchemaFactory.createForClass(Role);
+
+// indexa el campo name
+RoleSchema.index({ name: 1 });
