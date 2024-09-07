@@ -10,7 +10,7 @@ export class MessagesService {
   constructor(
     @InjectModel(Message.name)
     private readonly messageModel: Model<Message>,
-  ) {}
+  ) { }
 
   async create(createMessageDto: CreateMessageDto) {
     const createdMessage = new this.messageModel(createMessageDto);
@@ -22,15 +22,26 @@ export class MessagesService {
     return this.messageModel.find().exec();
   }
 
-  async findOne(id: number) {
+  // aquí ponemos que id es un string porque eso le estamos pasando desde el controlador
+  async findOne(id: string) {
+
+    // validamos que el id sea un ObjectId
     if (!isValidObjectId(id)) {
+      // tiramos el error de bad request
       throw new BadRequestException(`Invalid message ID: ${id}`);
     }
+
+    // Buscar el mensaje por su ID
     const message = await this.messageModel.findById(id).exec();
     if (!message) {
+      // tiramos el error de not found
       throw new BadRequestException(`Message with ID ${id} not found`);
     }
+
+    // retornamos el mensaje si pasa todas las validaciones
     return message;
+
+
   }
 
   async update(id: number, updateMessageDto: UpdateMessageDto) {
@@ -45,7 +56,7 @@ export class MessagesService {
       console.log('Update data:', updateMessageDto);
 
       const updatedMessage = await this.messageModel.findByIdAndUpdate(id, updateMessageDto, { new: true });
-      
+
       // Log the result
       console.log('Updated message:', updatedMessage);
 

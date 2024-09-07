@@ -14,7 +14,7 @@ import { UpdateMessageDto } from './dto/update-message.dto';
 
 @Controller('messages')
 export class MessagesController {
-  constructor(private readonly messagesService: MessagesService) {}
+  constructor(private readonly messagesService: MessagesService) { }
 
   @Post()
   create(@Body() createMessageDto: CreateMessageDto) {
@@ -27,14 +27,10 @@ export class MessagesController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number) {
-    try {
-      const message = await this.messagesService.findOne(id);
-      return message;
-    } catch (error) {
-      console.error('Error in findOne method:', error);
-      throw new InternalServerErrorException('An error occurred while retrieving the message');
-    }
+  // aquí ponemos que id es un string porque los id de mongo van a venir como string
+  findOne(@Param('id') id: string) {
+    // antes aquí de daba error porque id es un string, pero el service recibía un número, por eso cambiamos el tipo de dato en el service también.
+    return this.messagesService.findOne(id);
   }
 
   @Patch(':id')
