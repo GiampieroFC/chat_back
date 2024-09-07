@@ -17,18 +17,18 @@ export class ChatRoomsController {
     return this.chatRoomsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chatRoomsService.findOne(+id);
+  @Get(':term')
+  findOne(@Param('term') term: string) {
+    return this.chatRoomsService.findOne(term);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateChatRoomDto: UpdateChatRoomDto) {
-    return this.chatRoomsService.update(+id, updateChatRoomDto);
+  @Patch(':term')
+  update(@Param('term') term: string, @Body() updateChatRoomDto: UpdateChatRoomDto) {
+    return this.chatRoomsService.update(term, updateChatRoomDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chatRoomsService.remove(+id);
+  @Delete(':term')
+  remove(@Param('term') term: string) {
+    return this.chatRoomsService.remove(term);
   }
 }

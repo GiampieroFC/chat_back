@@ -33,7 +33,8 @@ export class User extends Document {
     @Prop({
         enum: RoleName,
         type: String,
-        ref: Role.name
+        ref: Role.name,
+        default: RoleName.User
     })
     role?: RoleName;
 }
