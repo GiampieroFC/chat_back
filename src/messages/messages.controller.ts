@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   InternalServerErrorException,
-  BadRequestException
+  BadRequestException,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -15,7 +15,7 @@ import { UpdateMessageDto } from './dto/update-message.dto';
 
 @Controller('messages')
 export class MessagesController {
-  constructor(private readonly messagesService: MessagesService) { }
+  constructor(private readonly messagesService: MessagesService) {}
 
   @Post()
   create(@Body() createMessageDto: CreateMessageDto) {
@@ -37,20 +37,14 @@ export class MessagesController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateMessageDto: UpdateMessageDto
+    @Body() updateMessageDto: UpdateMessageDto,
   ) {
     return this.messagesService.update(id, updateMessageDto);
   }
 
-
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    try {
-      const result = await this.messagesService.remove(id);
-      return { message: result };
-    } catch (error) {
-      console.error('Error in remove method:', error);
-      throw new BadRequestException('An error occurred while deleting the message');
-    }
+    const result = await this.messagesService.remove(id);
+    return { message: result };
   }
 }
