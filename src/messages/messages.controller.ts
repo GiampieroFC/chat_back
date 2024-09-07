@@ -6,7 +6,8 @@ import {
   Patch,
   Param,
   Delete,
-  InternalServerErrorException
+  InternalServerErrorException,
+  BadRequestException
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -49,7 +50,7 @@ export class MessagesController {
       return { message: result };
     } catch (error) {
       console.error('Error in remove method:', error);
-      throw new InternalServerErrorException('An error occurred while deleting the message');
+      throw new BadRequestException('An error occurred while deleting the message');
     }
   }
 }
