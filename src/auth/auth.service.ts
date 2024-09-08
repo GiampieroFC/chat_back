@@ -2,9 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
+<<<<<<< HEAD
 import { compare } from 'bcryptjs';
 import { AuthResponse } from './auth-response/auth-response.interface';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+=======
+import * as bcrypt from 'bcrypt';
+import { AuthResponse } from './auth-response/auth-response.interface';
+>>>>>>> 967c35c (refact)
 
 
 @Injectable()
@@ -31,7 +36,11 @@ export class AuthService {
     }
 
     // Verificar la contraseña
+<<<<<<< HEAD
     const isPasswordValid = await compare(password, user.password);
+=======
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+>>>>>>> 967c35c (refact)
 
     // Si la contraseña es inválida, lanzar excepción
     if (!isPasswordValid) {
