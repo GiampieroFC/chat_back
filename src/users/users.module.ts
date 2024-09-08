@@ -12,5 +12,6 @@ import { User, UserSchema } from './entities/user.entity';
       { name: User.name, schema: UserSchema },
     ])
   ],
+  exports : [UsersService]
 })
 export class UsersModule { }
