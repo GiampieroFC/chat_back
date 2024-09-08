@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { AuthResponse } from './auth-response/auth-response.interface';
 
 
 @Injectable()
@@ -10,21 +11,14 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
-  async register(createUserDto: CreateUserDto): Promise<any> {
-    // buscamos el user por email
-    const user = await this.usersService.findByEmail(createUserDto.email);
-    // si lo encuentra lanzamos una excepcion
-    if (user) {
-      throw new UnauthorizedException('Email already exists');
-    }
-    // Sino crea un nuevo user
-    const newUser = await this.usersService.create({
-      ...createUserDto
-    });
-    //retorna el token json
-    return this.jwtService.sign({ id: newUser.id, email: newUser.email });
+  async register(createUserDto: CreateUserDto): Promise<AuthResponse> {
+
+    const user = await this.usersService.create(createUserDto);
+    const token = this.jwtService.sign({ id: user.id });
+
+    return { user, token };
   }
 
   async login(username: string, password: string): Promise<any> {
@@ -37,7 +31,7 @@ export class AuthService {
 
     // Verificar la contraseña
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    
+
     // Si la contraseña es inválida, lanzar excepción
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
