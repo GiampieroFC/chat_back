@@ -13,22 +13,23 @@ export class AuthService {
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<any> {
+    // buscamos el user por email
     const user = await this.usersService.findByEmail(createUserDto.email);
+    // si lo encuentra lanzamos una excepcion
     if (user) {
       throw new UnauthorizedException('Email already exists');
     }
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    // Sino crea un nuevo user
     const newUser = await this.usersService.create({
-      ...createUserDto,
-      password: hashedPassword,
+      ...createUserDto
     });
+    //retorna el token json
     return this.jwtService.sign({ id: newUser.id, email: newUser.email });
   }
 
   async login(username: string, password: string): Promise<any> {
     // Buscar el usuario por nombre de usuario
     const user = await this.usersService.findByUsername(username);
-    console.log(user)
     // Verificar si el usuario existe
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
