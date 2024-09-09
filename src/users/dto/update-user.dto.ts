@@ -4,8 +4,11 @@ import { IsOptional, IsBoolean } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
 
-
     @IsOptional()
     @IsBoolean()
     isDeleted?: boolean;
+
+    @IsOptional()
+    @IsBoolean()
+    isConnected?: boolean;
 }

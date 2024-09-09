@@ -1,4 +1,4 @@
-import { IsString, MinLength, IsPhoneNumber, IsOptional, IsEmail, IsLowercase, IsUrl, IsMongoId, IsEnum, isString } from "class-validator";
+import { IsString, MinLength, IsOptional, IsEmail, IsLowercase, IsUrl, IsEnum, } from "class-validator";
 import { RoleName } from "src/roles/entities/role.entity";
 
 export class CreateUserDto {
@@ -33,8 +33,8 @@ export class CreateUserDto {
     @IsUrl()
     avatar?: string;
 
-    @IsEnum(RoleName, { message: 'role must be one of the values: ' + Object.values(RoleName).join(', ') })
+    // Validación de roles basada en el enum RoleName
+    @IsEnum(RoleName, { each: true, message: 'role must be one of the values: ' + Object.values(RoleName).join(', ') })
     @IsOptional()
-    @IsString()
-    role?: string;
+    roles?: RoleName[]; // Permite múltiples roles como un array de RoleName
 }

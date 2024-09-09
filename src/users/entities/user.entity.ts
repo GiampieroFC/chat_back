@@ -30,13 +30,16 @@ export class User extends Document {
     @Prop({ default: false })
     isDeleted: boolean;
 
+    @Prop({ default: false })
+    isConnected: boolean;
+
+    // Propiedad para almacenar roles
     @Prop({
-        enum: RoleName,
-        type: String,
-        ref: Role.name,
-        default: RoleName.User
+        type: [String], // Un array de strings
+        enum: RoleName, // Limita los valores posibles al enum RoleName
+        default: [RoleName.User] // Valor predeterminado en caso de no especificarse
     })
-    role?: RoleName;
+    roles?: RoleName[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
