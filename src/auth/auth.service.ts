@@ -1,23 +1,10 @@
-<<<<<<< HEAD
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-
-@Injectable()
-export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-=======
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
+import { compare } from 'bcryptjs';
 import { AuthResponse } from './auth-response/auth-response.interface';
+import { UpdateAuthDto } from './dto/update-auth.dto';
 
 
 @Injectable()
@@ -44,7 +31,7 @@ export class AuthService {
     }
 
     // Verificar la contraseña
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await compare(password, user.password);
 
     // Si la contraseña es inválida, lanzar excepción
     if (!isPasswordValid) {
@@ -54,7 +41,6 @@ export class AuthService {
     // Generar y retornar el JWT
     const payload = { id: user.id, username: user.username };
     return this.jwtService.sign(payload);
->>>>>>> 967c35c (refact)
   }
 
   findOne(id: number) {

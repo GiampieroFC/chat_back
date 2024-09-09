@@ -3,14 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
-<<<<<<< HEAD
 import { ConfigModule } from '@nestjs/config';
 import { MessagesModule } from './messages/messages.module';
 import { ChatRoomsModule } from './chat-rooms/chat-rooms.module';
 import { RolesModule } from './roles/roles.module';
-=======
-import { MessagesModule } from './messages/messages.module';
->>>>>>> origin/jazzback
 
 @Module({
   imports: [
@@ -20,11 +16,8 @@ import { MessagesModule } from './messages/messages.module';
     MongooseModule.forRoot('mongodb://root:example@localhost:27017/db_chats?authSource=admin'),
     UsersModule,
     MessagesModule,
-<<<<<<< HEAD
     ChatRoomsModule,
     RolesModule,
-=======
->>>>>>> origin/jazzback
   ],
   controllers: [AppController],
   providers: [AppService],
