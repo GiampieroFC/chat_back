@@ -9,7 +9,6 @@ import { RoleName } from 'src/roles/entities/role.entity';
 
 @Controller('auth')
 export class AuthController {
-
   constructor(private readonly authService: AuthService) { }
 
   @Post('register')
