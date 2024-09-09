@@ -24,7 +24,7 @@ export class ChatRoom extends Document {
         enum: ChatRoomType,
         default: ChatRoomType.Private
     })
-    chatRoomtype: string;
+    chatRoomType: string;
 
     @Prop({
         type: ObjectId,
@@ -33,22 +33,12 @@ export class ChatRoom extends Document {
     })
     createdBy: string;
 
-    @Prop([{
-        user: {
-            type: ObjectId,
-            ref: User.name,
-            required: true,
-        },
-        role: {
-            type: String,
-            enum: RoleName,
-            required: true,
-        }
-    }])
-    members: Array<{
-        user: string;
-        role: RoleName;
-    }>;
+    @Prop({
+        type: Map,
+        of: String,  // Guardar los roles como valores de tipo string.
+        required: true
+    })
+    members: Map<string, string>; // Aquí se almacenan los ids de usuario como claves y los roles como valores.
 
     @Prop()
     password?: string;
@@ -61,5 +51,5 @@ export const ChatRoomSchema = SchemaFactory.createForClass(ChatRoom);
 
 // Agregar índices para mejorar el rendimiento de las consultas
 ChatRoomSchema.index({ name: 1 });
-ChatRoomSchema.index({ 'members.user': 1 });
+ChatRoomSchema.index({ 'members': 1 });
 // ChatRoomSchema.index({ 'members.role': 1 });

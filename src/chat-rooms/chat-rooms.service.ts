@@ -69,7 +69,11 @@ export class ChatRoomsService {
       if (!!existsChatRoom) throw new BadRequestException('ChatRoom\'s name already exists');
     }
 
-    const chatRoomUpdated = await this.chatRoomModel.findByIdAndUpdate(chatRoom.id, updateChatRoomDto, { new: true });
+    const chatRoomUpdated = await this.chatRoomModel.findByIdAndUpdate(
+      chatRoom.id,
+      updateChatRoomDto,
+      { new: true }
+    );
     if (!chatRoomUpdated) throw new BadRequestException('Chat Room not found');
 
     return chatRoomUpdated;

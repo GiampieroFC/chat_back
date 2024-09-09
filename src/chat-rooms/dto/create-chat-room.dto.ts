@@ -1,18 +1,6 @@
 import { ChatRoomType } from "../entities/chat-room.entity";
-import { IsOptional, IsString, MinLength, IsEnum, IsMongoId, ValidateNested } from "class-validator";
-import { Type } from "class-transformer";
+import { IsOptional, IsString, MinLength, IsEnum, IsMongoId, IsDefined, IsObject, isMongoId, registerDecorator, ValidationArguments, ValidationOptions } from "class-validator";
 import { RoleName } from "src/roles/entities/role.entity";
-
-export class ChatRoomMemberDto {
-    @IsMongoId()
-    @IsString()
-    user: string;
-
-    @IsEnum(RoleName, { message: 'role must be one of the values: ' + Object.values(RoleName).join(', ') })
-    @IsOptional()
-    @IsString()
-    role: RoleName;
-}
 
 export class CreateChatRoomDto {
 
@@ -27,18 +15,76 @@ export class CreateChatRoomDto {
 
     @IsString()
     @IsEnum(ChatRoomType)
-    chatRoomtype: ChatRoomType;
+    chatRoomType: ChatRoomType;
 
     @IsMongoId()
     @IsString()
+    @IsDefined()
     createdBy: string;
 
-    @ValidateNested({ each: true })
-    @Type(() => ChatRoomMemberDto)
-    members: ChatRoomMemberDto[];
+    @IsObject()
+    @IsValidKeyObjectId() // Validamos que las claves sean ObjectIds
+    @IsValidValueRolename() // Validamos que las values sean RoleName
+    members: Record<string, RoleName>;  // Clave: userId, Valor: role
 
     @IsString()
     @MinLength(4)
     @IsOptional()
     password?: string;
+}
+
+export function IsValidKeyObjectId(validationOptions?: ValidationOptions) {
+    return function (object: any, propertyName: string) {
+        registerDecorator({
+            name: 'isValidMembers',
+            target: object.constructor,
+            propertyName: propertyName,
+            options: validationOptions,
+            validator: {
+                validate(value: any, args: ValidationArguments) {
+                    if (typeof value !== 'object' || value === null) return false;
+
+                    for (const key of Object.keys(value)) {
+                        // Validamos que las claves sean MongoDB ObjectId
+                        if (!isMongoId(key)) {
+                            return false; // Invalid ObjectId key
+                        }
+                    }
+
+                    return true; // Both keys and values are valid
+                },
+                defaultMessage(): string {
+                    return 'The keys must be valid MongoDB ObjectId strings';
+                },
+            },
+        });
+    };
+}
+
+export function IsValidValueRolename(validationOptions?: ValidationOptions) {
+    return function (object: any, propertyName: string) {
+        registerDecorator({
+            name: 'isValidMembers',
+            target: object.constructor,
+            propertyName: propertyName,
+            options: validationOptions,
+            validator: {
+                validate(value: any, args: ValidationArguments) {
+                    if (typeof value !== 'object' || value === null) return false;
+
+                    for (const role of Object.values(value)) {
+                        // Validamos que los valores sean roles válidos
+                        if (!Object.values(RoleName).includes(role as RoleName)) {
+                            return false; // Invalid role value
+                        }
+                    }
+
+                    return true; // Both keys and values are valid
+                },
+                defaultMessage(): string {
+                    return `The values must be valid roles: ${Object.values(RoleName).join(', ')}`;
+                },
+            },
+        });
+    };
 }

@@ -1,3 +1,4 @@
+
 import {
   Controller,
   Get,
@@ -13,9 +14,10 @@ import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 
+
 @Controller('messages')
 export class MessagesController {
-  constructor(private readonly messagesService: MessagesService) {}
+  constructor(private readonly messagesService: MessagesService) { }
 
   @Post()
   create(@Body() createMessageDto: CreateMessageDto) {
@@ -28,7 +30,7 @@ export class MessagesController {
   }
 
   @Get(':id')
-  // aquí ponemos que id es un string porque los id de mongo van a venir como string
+  // aquí ponemos que id es un string porque los id de mongvan a venir como string
   findOne(@Param('id') id: string) {
     // antes aquí de daba error porque id es un string, pero el service recibía un número, por eso cambiamos el tipo de dato en el service también.
     return this.messagesService.findOne(id);
