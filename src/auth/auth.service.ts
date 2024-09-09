@@ -1,9 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { compare } from 'bcryptjs';
 import { AuthResponse } from './auth-response/auth-response.interface';
+import { LoginAuthDto } from './dto/login-auth.dto';
 
 
 @Injectable()
@@ -21,25 +22,18 @@ export class AuthService {
     return { user, token };
   }
 
-  async login(username: string, password: string): Promise<any> {
-    // Buscar el usuario por nombre de usuario
-    const user = await this.usersService.findByUsername(username);
-    // Verificar si el usuario existe
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+  async login(loginAuthDto: LoginAuthDto): Promise<AuthResponse> {
 
-    // Verificar la contraseña
-    const isPasswordValid = await compare(password, user.password);
+    const user = await this.usersService.findByEmail(loginAuthDto.emailOrUsername);
+    if (!user) throw new BadRequestException('Invalid credentials');
 
-    // Si la contraseña es inválida, lanzar excepción
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    const isPasswordValid = await compare(loginAuthDto.password, user.password);
+    if (!isPasswordValid) throw new UnauthorizedException('Invalid credentials');
 
-    // Generar y retornar el JWT
-    const payload = { id: user.id, username: user.username };
-    return this.jwtService.sign(payload);
+    const payload = { id: user.id };
+    const token = this.jwtService.sign(payload);
+
+    return { user, token };
   }
 
 }
