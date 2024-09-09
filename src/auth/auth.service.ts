@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import * as bcrypt from 'bcryptjs';
+import { compare } from 'bcryptjs';
 import { AuthResponse } from './auth-response/auth-response.interface';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { isValidObjectId } from 'mongoose';
