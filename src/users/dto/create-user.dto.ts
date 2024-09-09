@@ -1,4 +1,4 @@
-import { IsString, MinLength, IsPhoneNumber, IsOptional, IsEmail, IsLowercase, IsUrl, IsMongoId, IsEnum } from "class-validator";
+import { IsString, MinLength, IsPhoneNumber, IsOptional, IsEmail, IsLowercase, IsUrl, IsMongoId, IsEnum, isString } from "class-validator";
 import { RoleName } from "src/roles/entities/role.entity";
 
 export class CreateUserDto {
@@ -15,7 +15,7 @@ export class CreateUserDto {
     @MinLength(3)
     lastname: string;
 
-    @IsPhoneNumber()
+    @IsString()
     @IsOptional()
     phone?: string;
 
