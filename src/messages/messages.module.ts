@@ -13,4 +13,8 @@ import { MongooseModule } from '@nestjs/mongoose';
     ])
   ],
 })
+<<<<<<< HEAD
 export class MessagesModule { }
+=======
+export class MessagesModule { }
+>>>>>>> origin/jazzback
