@@ -1,16 +1,12 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model, Types } from 'mongoose';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { Message } from './entities/message.entity';
-import { throwError } from 'rxjs';
-import { error } from 'console';
 
 @Injectable()
 export class MessagesService {
