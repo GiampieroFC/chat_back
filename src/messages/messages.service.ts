@@ -1,29 +1,3 @@
-<<<<<<< HEAD
-import { Injectable } from '@nestjs/common';
-import { CreateMessageDto } from './dto/create-message.dto';
-import { UpdateMessageDto } from './dto/update-message.dto';
-
-@Injectable()
-export class MessagesService {
-  create(createMessageDto: CreateMessageDto) {
-    return 'This action adds a new message';
-  }
-
-  findAll() {
-    return `This action returns all messages`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} message`;
-  }
-
-  update(id: number, updateMessageDto: UpdateMessageDto) {
-    return `This action updates a #${id} message`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} message`;
-=======
 import {
   BadRequestException,
   Injectable,
@@ -43,7 +17,7 @@ export class MessagesService {
   constructor(
     @InjectModel(Message.name)
     private readonly messageModel: Model<Message>,
-  ) {}
+  ) { }
 
   async create(createMessageDto: CreateMessageDto) {
     const createdMessage = new this.messageModel(createMessageDto);
@@ -87,9 +61,8 @@ export class MessagesService {
   async remove(id: string) {
     // Usamos el método findOne para validar el ID y existencia del recurso
     await this.findOne(id);
-  
+
     // Si el recurso existe, procede a eliminarlo
     return this.messageModel.findByIdAndDelete(id).exec();
->>>>>>> origin/jazzback
   }
 }
