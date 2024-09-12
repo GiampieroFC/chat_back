@@ -24,7 +24,6 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       id: client.id,
       namespace: client.nsp.name,
     });
-    // console.log("🔗 =>", { client, args });
 
     this.wss.emit('message', 'world');
 
