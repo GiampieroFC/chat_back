@@ -7,8 +7,6 @@ import {
   Patch,
   Param,
   Delete,
-  InternalServerErrorException,
-  BadRequestException,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -30,9 +28,7 @@ export class MessagesController {
   }
 
   @Get(':id')
-  // aquí ponemos que id es un string porque los id de mongvan a venir como string
   findOne(@Param('id') id: string) {
-    // antes aquí de daba error porque id es un string, pero el service recibía un número, por eso cambiamos el tipo de dato en el service también.
     return this.messagesService.findOne(id);
   }
 
