@@ -1,26 +1,56 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { UsersService } from 'src/users/users.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { compare } from 'bcryptjs';
+import { AuthResponse } from './auth-response/auth-response.interface';
+import { LoginAuthDto } from './dto/login-auth.dto';
+import { isValidObjectId } from 'mongoose';
+import { User } from 'src/users/entities/user.entity';
+
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) { }
+
+  async register(createUserDto: CreateUserDto): Promise<AuthResponse> {
+
+    const user = await this.usersService.create(createUserDto);
+    const token = this.jwtService.sign({ id: user.id });
+
+    return { user, token };
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async login(loginAuthDto: LoginAuthDto): Promise<AuthResponse> {
+
+    let user: User;
+
+    if (loginAuthDto.emailOrUsername.includes('@')) {
+      user = await this.usersService.findByEmail(loginAuthDto.emailOrUsername);
+    }
+
+    if (!user && isValidObjectId(loginAuthDto.emailOrUsername)) {
+      user = await this.usersService.findById(loginAuthDto.emailOrUsername);
+    }
+
+    if (!user) {
+      user = await this.usersService.findByUsername(loginAuthDto.emailOrUsername);
+    }
+
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+
+
+    const isPasswordValid = await compare(loginAuthDto.password, user.password);
+    if (!isPasswordValid) throw new UnauthorizedException('Invalid credentials');
+
+    const payload = { id: user.id };
+    const token = this.jwtService.sign(payload);
+
+    return { user, token };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
 }
