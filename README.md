@@ -3,8 +3,8 @@
 
 ## Levantar la base de datos
 
-> [!IMPORTANT] Dependencias.
-> 
+> [!IMPORTANT]
+> **Dependencias**
 > Son necesarias las dependencias `docker-compose` y `docker`. Si no se tiene, se puede levantar la base de datos que prefieras y cambiar el _connect string_ de la base de datos.
 
 1. Levanta la base de datos: `docker-compose up -d`
@@ -20,7 +20,7 @@
 
 [https://documenter.getpostman.com/view/27708672/2sAXqndjDf](https://documenter.getpostman.com/view/27708672/2sAXqndjDf)
 
-> [!CAUTION] Docker.
-> 
+> [!CAUTION]
+> **Docker deamon**
 > Para no dejar el contenedor corriendo en sus máquinas, escriban `docker-compose down -v` en el terminal.
 
