@@ -1,5 +1,5 @@
 import {
-    ConnectedSocket,
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -18,15 +18,16 @@ export class WebSocketgateway
 
   handleConnection(client: Socket) {
     console.log(`Cliente conectado ${client.id}`);
+    this.server.emit('conn', client.id);
   }
 
   handleDisconnect(client: Socket) {
     console.log(`Cliente desconectado: ${client.id}`);
   }
   @SubscribeMessage('mensaje')
-  handlemessage(@ConnectedSocket() client:Socket ,@MessageBody() data: any) {
+  handlemessage(@ConnectedSocket() client: Socket, @MessageBody() data: any) {
     console.log(data);
     // this.server.emit('mensajeserver', data)
-    client.broadcast.emit('mensajeserver',data)
+    client.broadcast.emit('mensajeserver', data);
   }
 }

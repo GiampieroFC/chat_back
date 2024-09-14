@@ -8,10 +8,8 @@ import { User, UserSchema } from './entities/user.entity';
   controllers: [UsersController],
   providers: [UsersService],
   imports: [
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-    ])
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
-  exports : [UsersService]
+  exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

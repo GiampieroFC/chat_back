@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,13 +12,10 @@ import { hashSync } from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
-
   constructor(
-
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
-
-  ) { }
+  ) {}
 
   async findByEmail(email: string) {
     const user = await this.userModel.findOne({ email });
@@ -34,7 +35,6 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
-
     let existsUser: User;
     createUserDto.password = hashSync(createUserDto.password);
 
@@ -75,12 +75,12 @@ export class UsersService {
   }
 
   async update(term: string, updateUserDto: UpdateUserDto) {
-
     const existsEmail = await this.findByEmail(updateUserDto.email);
     if (existsEmail) throw new BadRequestException('Email already registed');
 
     const existsUsername = await this.findByUsername(updateUserDto.username);
-    if (existsUsername) throw new BadRequestException('Username already registed');
+    if (existsUsername)
+      throw new BadRequestException('Username already registed');
 
     const user = await this.findOne(term);
 
@@ -91,7 +91,7 @@ export class UsersService {
     const updatedUser = await this.userModel.findByIdAndUpdate(
       user.id,
       updateUserDto,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updatedUser) {
@@ -102,7 +102,6 @@ export class UsersService {
   }
 
   async remove(term: string) {
-
     const user = await this.findOne(term);
     if (!user) {
       throw new NotFoundException('User not found');
