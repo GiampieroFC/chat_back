@@ -22,43 +22,31 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   wss: Server;
 
   constructor(
-    private readonly userService: UsersService,
     private readonly authWsGuard: AuthWsGuard,
     private readonly wsService: WsService
   ) { }
 
   async handleConnection(client: Socket, ...args: any[]) {
-    // console.log('🔗 =>', {
-    //   req,
-    //   args,
-    //   connected: client.connected,
-    //   data: client.data,
-    //   handshake: client.handshake,
-    //   id: client.id,
-    //   namespace: client.nsp.name,
-    // });
 
     const user = await this.authWsGuard.getUser(client);
     if (!user) {
       client.disconnect();
       return;
     }
+    await user.updateOne({ isConnected: true });
 
-    this.wss.emit('conn', `${user.name} ${user.lastname} se ha conectado!`);
-    // this.userService.update(client.data.user.id, {
-    //   isConnected: true
-    // });
+    client.broadcast.emit('conn', `🔗 ${user.username} se ha conectado!`);
 
-    // this.wss.emit('conn', `${client.data.user.name} ${client.data.user.lastname} se ha conectado!`);
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
 
-    this.userService.update(client.data.user.id, {
-      isConnected: true
-    });
+    const user = await this.authWsGuard.getUser(client);
+    console.log("👨🏻‍💻 =>", { user });
 
-    this.wss.emit('conn', `${client.data.user.name} ${client.data.user.lastname} se ha conectado!`);
+    await user.updateOne({ isConnected: false });
+
+    client.broadcast.emit('disconn', `🚫 ${user.username} se ha conectado!`);
   }
 
   // ---

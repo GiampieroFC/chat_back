@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
-import { Observable } from 'rxjs';
 import { Server, Socket } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
 
@@ -52,29 +51,37 @@ export class AuthWsGuard implements CanActivate {
       token = client.handshake.headers?.authorization?.split(' ')[1];
 
       if (!token) {
-        client.emit('error', 'Token not found');
+        client.emit('error', '❗❗❗ Token not found');
         client.disconnect();
         return;
       }
     }
 
-    console.log("👨🏻‍💻 => ❗❗❗❗❗", { token });
+    try {
 
-    const payload = this.jwtService.verify(token);
-    if (!payload.id) {
-      client.emit('error', 'Payload not found');
+      const payload = this.jwtService.verify(token);
+
+      if (!payload.id) {
+        client.emit('error', '❗❗❗ Payload not found');
+        client.disconnect();
+        return;
+      }
+
+      const user = await this.userService.findOne(payload.id);
+
+      if (!user) {
+        client.emit('error', '❗❗❗ User not found');
+        client.disconnect();
+        return;
+      }
+
+      return user;
+    } catch (error) {
+
+      client.emit('error', '❗❗❗' + error.message);
       client.disconnect();
       return;
     }
 
-    const user = await this.userService.findOne(payload.id);
-
-    if (!user) {
-      client.emit('error', 'User not found');
-      client.disconnect();
-      return;
-    }
-
-    return user;
   }
 }
