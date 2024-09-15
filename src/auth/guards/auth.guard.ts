@@ -1,5 +1,4 @@
 import {
-  BadGatewayException,
   BadRequestException,
   CanActivate,
   ExecutionContext,
