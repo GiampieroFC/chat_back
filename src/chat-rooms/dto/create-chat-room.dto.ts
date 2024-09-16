@@ -3,35 +3,24 @@ import { IsOptional, IsString, MinLength, IsEnum, IsMongoId, IsDefined, IsObject
 import { RoleName } from "src/roles/entities/role.entity";
 
 export class CreateChatRoomDto {
-
     @IsString()
     @MinLength(2)
     name: string;
-
+  
     @IsString()
     @MinLength(6)
     @IsOptional()
     description?: string;
-
+  
     @IsString()
     @IsEnum(ChatRoomType)
     chatRoomType: ChatRoomType;
-
-    @IsMongoId()
-    @IsString()
-    @IsDefined()
-    createdBy: string;
-
-    @IsObject()
-    @IsValidKeyObjectId() // Validamos que las claves sean ObjectIds
-    @IsValidValueRolename() // Validamos que las values sean RoleName
-    members: Record<string, RoleName>;  // Clave: userId, Valor: role
-
+  
     @IsString()
     @MinLength(4)
     @IsOptional()
     password?: string;
-}
+  }
 
 export function IsValidKeyObjectId(validationOptions?: ValidationOptions) {
     return function (object: any, propertyName: string) {
