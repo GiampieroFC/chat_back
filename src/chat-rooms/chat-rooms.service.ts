@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UseGuards } from '@nestjs/common';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { UpdateChatRoomDto } from './dto/update-chat-room.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,6 +7,8 @@ import { ChatRoom } from './entities/chat-room.entity';
 import { UsersService } from 'src/users/users.service';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { User } from 'src/users/entities/user.entity';
+import { Role, RoleName } from 'src/roles/entities/role.entity';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 
 @Injectable()
 export class ChatRoomsService {
@@ -87,16 +89,23 @@ export class ChatRoomsService {
     return chatRoomUpdated;
   }
 
-  async remove(term: string) {
-
-    const chatRoom = await this.findOne(term);
+  async remove(term: string, user: User) {
+    const chatRoom = await this.findOne(term); // Buscar la sala por ID o nombre
     if (!chatRoom) throw new BadRequestException('Chat Room not found');
-
-    chatRoom.isDeleted = true;
-    await chatRoom.save();
-
-    return `This action removes a #${term} chatRoom`;
+  
+    // Verificamos si el usuario es dueño de la sala de chat
+    const userRole = chatRoom.members.get(user.id);  // Obtenemos el rol del usuario en el chat
+  
+    if (userRole !== RoleName.Owner) {
+      throw new BadRequestException('Only the owner can delete the chat room');
+    }
+  
+    chatRoom.isDeleted = true;  // Marcamos la sala como eliminada
+    await chatRoom.save();      // Guardamos los cambios
+  
+    return `Chat room ${term} has been successfully deleted`;
   }
+  
   async addParticipant(addParticipantDto: AddParticipantDto) {
     const { chatRoomId, username } = addParticipantDto;
 
@@ -118,5 +127,37 @@ export class ChatRoomsService {
     await chatRoom.save();
 
     return chatRoom;
+  }
+   // Método para eliminar un participante del chatroom
+   async removeParticipantFromChatRoom(
+    chatRoomId: string,
+    username: string,
+    currentUser: User,
+  ): Promise<string> {
+    // Buscar la sala de chat
+    const chatRoom = await this.chatRoomModel.findById(chatRoomId);
+    if (!chatRoom) throw new NotFoundException('Chat Room not found');
+
+    // Verificar que la persona que está haciendo la solicitud es quien creó el chatroom
+    if (chatRoom.createdBy.toString() !== currentUser._id.toString()) {
+      throw new BadRequestException('Only the creator of the chat room can remove participants');
+    }
+
+    // Buscar el usuario que queremos eliminar por su nombre de usuario
+    const userToRemove = await this.usersService.findByUsername(username);
+    if (!userToRemove) throw new NotFoundException('User not found');
+
+    // Verificar que el usuario a eliminar está en los miembros
+    if (!chatRoom.members.has(userToRemove._id.toString())) {
+      throw new BadRequestException('User is not a member of the chat room');
+    }
+
+    // Eliminar al participante de la sala de chat
+    chatRoom.members.delete(userToRemove._id.toString());
+
+    // Guardar los cambios
+    await chatRoom.save();
+
+    return `User ${username} has been removed from the chat room`;
   }
 }

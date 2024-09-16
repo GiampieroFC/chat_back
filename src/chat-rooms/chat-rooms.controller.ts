@@ -6,6 +6,7 @@ import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { RoleName } from 'src/roles/entities/role.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('chat-rooms')
 export class ChatRoomsController {
@@ -32,14 +33,32 @@ export class ChatRoomsController {
   update(@Param('term') term: string, @Body() updateChatRoomDto: UpdateChatRoomDto) {
     return this.chatRoomsService.update(term, updateChatRoomDto);
   }
-
+  
+  @UseGuards(AuthGuard)
   @Delete(':term')
-  remove(@Param('term') term: string) {
-    return this.chatRoomsService.remove(term);
+  remove(@Param('term') term: string, @Req() req) {
+    const user: User = req.user; // Obtenemos el usuario autenticado
+    return this.chatRoomsService.remove(term, user);
   }
+
   @Post('add-participant')
   @UseGuards(AuthGuard)                 // Asegúrate de que el usuario esté autenticado
   async addParticipant(@Body() addParticipantDto: AddParticipantDto) {
     return this.chatRoomsService.addParticipant(addParticipantDto);
   }
+  // Endpoint para eliminar a un participante
+  @UseGuards(AuthGuard)
+  @Delete(':id/participants/:username')
+  async removeParticipant(
+    @Param('id') chatRoomId: string,
+    @Param('username') username: string,
+    @Req() req: Request
+  ) {
+    // El usuario actual lo extraemos del request, esto es posible gracias al AuthGuard
+    const currentUser = req['user'] as User;
+    
+    // Llamamos al servicio para eliminar al participante
+    return this.chatRoomsService.removeParticipantFromChatRoom(chatRoomId, username, currentUser);
+  }
+
 }
