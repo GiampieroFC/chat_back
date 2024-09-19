@@ -15,6 +15,10 @@ export class CreateChatRoomDto {
     @IsString()
     @IsEnum(ChatRoomType)
     chatRoomType: ChatRoomType;
+
+    @IsObject()  // Esto verifica que members sea un objeto, pero opcional
+    @IsOptional()
+    members?: Record<string, RoleName>; 
   
     @IsString()
     @MinLength(4)
