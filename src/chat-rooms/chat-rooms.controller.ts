@@ -12,10 +12,11 @@ import { User } from 'src/users/entities/user.entity';
 export class ChatRoomsController {
   constructor(private readonly chatRoomsService: ChatRoomsService) { }
 
-  @Auth(RoleName.User)
   @Post()
+  @Auth()
   async createChatRoom(@Body() createChatRoomDto: CreateChatRoomDto, @Req() request: any) {
     const user = request.user;
+    console.log("👨🏻‍💻 =>", { user });
     return this.chatRoomsService.create(createChatRoomDto, user);
   }
 
@@ -33,7 +34,7 @@ export class ChatRoomsController {
   update(@Param('term') term: string, @Body() updateChatRoomDto: UpdateChatRoomDto) {
     return this.chatRoomsService.update(term, updateChatRoomDto);
   }
-  
+
   @UseGuards(AuthGuard)
   @Delete(':term')
   remove(@Param('term') term: string, @Req() req) {
@@ -56,7 +57,7 @@ export class ChatRoomsController {
   ) {
     // El usuario actual lo extraemos del request, esto es posible gracias al AuthGuard
     const currentUser = req['user'] as User;
-    
+
     // Llamamos al servicio para eliminar al participante
     return this.chatRoomsService.removeParticipantFromChatRoom(chatRoomId, username, currentUser);
   }
