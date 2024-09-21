@@ -1,7 +1,7 @@
 import { IsEnum, IsString } from 'class-validator';
 import { RoleName } from 'src/roles/entities/role.entity';
 
-export class UpdateRoleDto {
+export class UpdateMemberRoleDto {
   @IsString()
   userId: string;
 

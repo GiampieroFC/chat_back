@@ -17,7 +17,8 @@ import { Auth } from 'src/auth/decorators/auth.decorator';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { RoleName } from 'src/roles/entities/role.entity';
 import { User } from 'src/users/entities/user.entity';
-import { UpdateRoleDto } from 'src/roles/dto/update-role.dto';
+import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
+import { Request } from 'express';
 
 @Controller('chat-rooms')
 export class ChatRoomsController {
@@ -25,10 +26,8 @@ export class ChatRoomsController {
 
   @Post()
   @Auth()
-  async createChatRoom(@Body() createChatRoomDto: CreateChatRoomDto, @Req() request: any) {
-    const user = request.user;
-    console.log("👨🏻‍💻 =>", { user });
-    return this.chatRoomsService.create(createChatRoomDto, user);
+  async createChatRoom(@Body() createChatRoomDto: CreateChatRoomDto, @Req() req: Request) {
+    return this.chatRoomsService.create(createChatRoomDto, req);
   }
 
   @Get()
@@ -42,58 +41,57 @@ export class ChatRoomsController {
   }
 
   @Patch(':term')
+  @Auth()
   update(
     @Param('term') term: string,
     @Body() updateChatRoomDto: UpdateChatRoomDto,
+    @Req() req: Request
   ) {
-    return this.chatRoomsService.update(term, updateChatRoomDto);
+    return this.chatRoomsService.update(term, updateChatRoomDto, req);
   }
 
-  @UseGuards(AuthGuard)
   @Delete(':term')
-  remove(@Param('term') term: string, @Req() req) {
-    const user: User = req.user; // Obtenemos el usuario autenticado
-    return this.chatRoomsService.remove(term, user);
+  @Auth()
+  remove(@Param('term') term: string, @Req() req: Request) {
+    return this.chatRoomsService.remove(term, req);
   }
 
-  @Post('add-participant')
-  @UseGuards(AuthGuard) // Asegúrate de que el usuario esté autenticado
-  async addParticipant(@Body() addParticipantDto: AddParticipantDto) {
-    return this.chatRoomsService.addParticipant(addParticipantDto);
-  }
-  // Endpoint para eliminar a un participante
-  @UseGuards(AuthGuard)
-  @Delete(':id/participants/:username')
-  async removeParticipant(
-    @Param('id') chatRoomId: string,
-    @Param('username') username: string,
-    @Req() req: Request,
+  @Patch('/:term/members')
+  @Auth()
+  async addMembers(
+    @Param('term') term: string,
+    @Body() updateChatRoomDto: UpdateChatRoomDto,
+    @Req() req: Request
   ) {
-    // El usuario actual lo extraemos del request, esto es posible gracias al AuthGuard
-    const currentUser = req['user'] as User;
-
-    // Llamamos al servicio para eliminar al participante
-    return this.chatRoomsService.removeParticipantFromChatRoom(
-      chatRoomId,
-      username,
-      currentUser,
-    );
+    return this.chatRoomsService.addMembers(term, updateChatRoomDto, req);
   }
-  @UseGuards(AuthGuard)
-  @Patch(':id/update-role')
-  async updateRole(
-    @Param('id') chatRoomId: string,
-    @Body() updateRoleDto: UpdateRoleDto,
-    @Req() req: Request,
+
+  @Delete('/:term/members/:userTerm')
+  @Auth()
+  async removeMembers(
+    @Param('term') term: string,
+    @Param('userTerm') userTerm: string,
+    @Req() req: Request
   ) {
-    // Obtenemos el usuario autenticado del request (AuthGuard)
-    const currentUser = req['user'] as User;
-
-    // Llamamos al servicio para actualizar el rol del participante
-    return this.chatRoomsService.updateMemberRole(
-      chatRoomId,
-      updateRoleDto,
-      currentUser,
-    );
+    return this.chatRoomsService.removeMembers(term, userTerm, req);
   }
+
+
+  // @UseGuards(AuthGuard)
+  // @Patch(':id/update-role')
+  // async updateRole(
+  //   @Param('id') chatRoomId: string,
+  //   @Body() updateRoleDto: UpdateMemberRoleDto,
+  //   @Req() req: Request,
+  // ) {
+  //   // Obtenemos el usuario autenticado del request (AuthGuard)
+  //   const currentUser = req['user'] as User;
+
+  //   // Llamamos al servicio para actualizar el rol del participante
+  //   return this.chatRoomsService.updateMemberRole(
+  //     chatRoomId,
+  //     updateRoleDto,
+  //     currentUser,
+  //   );
+  // }
 }

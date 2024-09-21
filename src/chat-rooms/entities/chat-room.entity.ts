@@ -34,11 +34,11 @@ export class ChatRoom extends Document {
     createdBy: string;
 
     @Prop({
-        type: Map,
+        type: Object,
         of: String,  // Guardar los roles como valores de tipo string.
         required: true
     })
-    members: Map<string, string>; // Aquí se almacenan los ids de usuario como claves y los roles como valores.
+    members: Record<string, RoleName>; // Aquí se almacenan los ids de usuario como claves y los roles como valores.
 
     @Prop()
     password?: string;

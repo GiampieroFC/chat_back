@@ -2,8 +2,8 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
-  UseGuards,
 } from '@nestjs/common';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { UpdateChatRoomDto } from './dto/update-chat-room.dto';
@@ -13,12 +13,15 @@ import { ChatRoom } from './entities/chat-room.entity';
 import { UsersService } from 'src/users/users.service';
 import { AddParticipantDto } from './dto/add-participant.dto';
 import { User } from 'src/users/entities/user.entity';
-import { Role, RoleName } from 'src/roles/entities/role.entity';
-import { Auth } from 'src/auth/decorators/auth.decorator';
-import { UpdateRoleDto } from 'src/roles/dto/update-role.dto';
+import { RoleName } from 'src/roles/entities/role.entity';
+import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
+import { Request } from 'express';
+import internal from 'stream';
+
 
 @Injectable()
 export class ChatRoomsService {
+
   constructor(
     @InjectModel(ChatRoom.name)
     private readonly chatRoomModel: Model<ChatRoom>,
@@ -45,29 +48,48 @@ export class ChatRoomsService {
     return null;
   }
 
-  async create(createChatRoomDto: CreateChatRoomDto, user: User) {
+  private checkMembers(members: Record<string, RoleName>, userId: string) {
+
+    delete members[userId];
+
+    const membersKeys = Object.keys(members);
+    const membersValues = Object.values(members);
+
+    if (membersKeys.length !== membersValues.length)
+      throw new BadRequestException('Members must have a unique key');
+
+    if (membersKeys.length !== new Set(membersKeys).size)
+      throw new BadRequestException('Members must have a unique key');
+
+    if (membersValues.includes(RoleName.Owner))
+      throw new BadRequestException('"owner" cannot be added as a member');
+
+    const cleanMembers = {
+      ...members,
+      [userId]: RoleName.Owner
+    };
+
+    return cleanMembers;
+  }
+
+  async create(createChatRoomDto: CreateChatRoomDto, req: Request) {
+
+    const { id: userId }: User = req['user'];
+
     const existsChatRoom = await this.findByName(createChatRoomDto.name);
-    if (existsChatRoom)
-      throw new BadRequestException('Chat Room already exists');
+    if (existsChatRoom) throw new BadRequestException('Chat Room with that name already exists');
 
-    // Si se proporcionan miembros, los mantenemos, pero añadimos al creador como 'owner'
-    const members = new Map(
-      createChatRoomDto.members
-        ? Object.entries(createChatRoomDto.members)
-        : [],
-    );
+    const members = this.checkMembers(createChatRoomDto.members, userId);
 
-    // Añadir automáticamente al creador como 'owner'
-    members.set(user._id.toString(), RoleName.Owner);
-
-    // Crear el chat room
-    const createdChatRoom = new this.chatRoomModel({
+    const newChatRoomData = {
       ...createChatRoomDto,
-      createdBy: user._id,
-      members: members,
-    });
+      createdBy: userId,
+      members,
+    };
 
+    const createdChatRoom = new this.chatRoomModel(newChatRoomData);
     await createdChatRoom.save();
+
     return createdChatRoom;
   }
 
@@ -87,133 +109,57 @@ export class ChatRoomsService {
     }
 
     if (!chatRoom)
-      throw new BadRequestException('ChatRoom: ${term}, not found');
+      throw new BadRequestException(`ChatRoom: ${term}, not found`);
 
     return chatRoom;
   }
 
-  async update(term: string, updateChatRoomDto: UpdateChatRoomDto) {
-    const chatRoom = await this.findOne(term);
-    if (!chatRoom) throw new BadRequestException('Chat Room not found');
+  async update(term: string, updateChatRoomDto: UpdateChatRoomDto, req: Request) {
 
-    const existsChatRoom = await this.findByName(updateChatRoomDto.name);
-    if (existsChatRoom) {
-      if (!!existsChatRoom)
-        throw new BadRequestException("ChatRoom's name already exists");
-    }
+    const user: User = req['user'];
+    const chatRoom = await this.findOne(term);
+
+    const existsNameChatRoom = await this.findByName(updateChatRoomDto.name);
+    if (!!existsNameChatRoom)
+      throw new BadRequestException("ChatRoom's name already exists");
+
+    if (chatRoom.members[user.id] !== RoleName.Owner)
+      throw new BadRequestException('Only the "owner" can update the chat room');
+
+    const members = this.checkMembers(updateChatRoomDto.members, user.id);
 
     const chatRoomUpdated = await this.chatRoomModel.findByIdAndUpdate(
       chatRoom.id,
-      updateChatRoomDto,
+      { ...updateChatRoomDto, members },
       { new: true },
     );
-    if (!chatRoomUpdated) throw new BadRequestException('Chat Room not found');
+    if (!chatRoomUpdated) throw new InternalServerErrorException('Can\'t update chat room - Talk with an administrator');
 
     return chatRoomUpdated;
   }
 
-  async remove(term: string, user: User) {
-    // Buscar la sala por ID o nombre
+  async remove(term: string, req: Request) {
+    return this.update(term, { isDeleted: true }, req);
+  }
+
+  async addMembers(term: string, updateChatRoomDto: UpdateChatRoomDto, req: Request) {
+
+    const user: User = req['user'];
     const chatRoom = await this.findOne(term);
-    if (!chatRoom) throw new BadRequestException('Chat Room not found');
+    const { members, ...rest } = updateChatRoomDto;
 
-    // Verificamos si el usuario es el creador del chat room
-    if (chatRoom.createdBy.toString() !== user._id.toString()) {
-      throw new BadRequestException(
-        'Only the creator can delete the chat room',
-      );
-    }
+    if (!!Object.keys(rest).length || !members) throw new BadRequestException('This endpoint only accepts "members"');
 
-    // Marcamos la sala como eliminada
-    chatRoom.isDeleted = true;
-    await chatRoom.save(); // Guardamos los cambios
+    const checkedMembers = this.checkMembers({ ...chatRoom.members, ...members }, user.id);
 
-    return `Chat room ${term} has been successfully deleted`;
+    return this.update(term, { members: checkedMembers }, req);
   }
 
-  async addParticipant(addParticipantDto: AddParticipantDto) {
-    const { chatRoomId, username } = addParticipantDto;
+  async removeMembers(term: string, userTerm: string, req: Request) {
 
-    // Encuentra el chat room
-    const chatRoom = await this.chatRoomModel.findById(chatRoomId);
-    if (!chatRoom) throw new NotFoundException('Chat Room not found');
+    const chatRoom = await this.findOne(term);
+    delete chatRoom.members[userTerm];
 
-    // Encuentra el usuario por nombre de usuario
-    const user = await this.usersService.findOne(username);
-    if (!user) throw new NotFoundException('User not found');
-
-    // Verifica si el usuario ya está en el chat room
-    if (chatRoom.members.has(user.id)) {
-      throw new BadRequestException(
-        'User is already a member of this chat room',
-      );
-    }
-
-    // Agrega el nuevo usuario con el rol 'user'
-    chatRoom.members.set(user.id, 'user');
-    await chatRoom.save();
-
-    return chatRoom;
-  }
-  // Método para eliminar un participante del chatroom
-  async removeParticipantFromChatRoom(
-    chatRoomId: string,
-    username: string,
-    currentUser: User,
-  ): Promise<string> {
-    // Buscar la sala de chat
-    const chatRoom = await this.chatRoomModel.findById(chatRoomId);
-    if (!chatRoom) throw new NotFoundException('Chat Room not found');
-
-    // Verificar que la persona que está haciendo la solicitud es quien creó el chatroom
-    if (chatRoom.createdBy.toString() !== currentUser._id.toString()) {
-      throw new BadRequestException(
-        'Only the creator of the chat room can remove participants',
-      );
-    }
-
-    // Buscar el usuario que queremos eliminar por su nombre de usuario
-    const userToRemove = await this.usersService.findByUsername(username);
-    if (!userToRemove) throw new NotFoundException('User not found');
-
-    // Verificar que el usuario a eliminar está en los miembros
-    if (!chatRoom.members.has(userToRemove._id.toString())) {
-      throw new BadRequestException('User is not a member of the chat room');
-    }
-
-    // Eliminar al participante de la sala de chat
-    chatRoom.members.delete(userToRemove._id.toString());
-
-    // Guardar los cambios
-    await chatRoom.save();
-
-    return `User ${username} has been removed from the chat room`;
-  }
-
-  async updateMemberRole(
-    chatRoomId: string,
-    updateRoleDto: UpdateRoleDto,
-    user: User,
-  ) {
-    const chatRoom = await this.findOne(chatRoomId);
-    if (!chatRoom) throw new NotFoundException('Chat Room not found');
-
-    // Validar si el usuario autenticado es el owner del chatroom
-    if (chatRoom.members.get(user._id.toString()) !== RoleName.Owner) {
-      throw new ForbiddenException('Only the owner can update roles');
-    }
-
-    const { userId, newRole } = updateRoleDto;
-
-    // Verificar que el miembro existe en el chatroom
-    if (!chatRoom.members.has(userId)) {
-      throw new BadRequestException('User is not a member of this chat room');
-    }
-
-    // Actualizar el rol
-    chatRoom.members.set(userId, newRole);
-
-    await chatRoom.save();
-    return `Role of user ${userId} updated to ${newRole}`;
+    return this.update(term, { members: chatRoom.members }, req);
   }
 }
