@@ -16,11 +16,18 @@ export class CreateChatRoomDto {
     @IsEnum(ChatRoomType)
     chatRoomType: ChatRoomType;
 
+<<<<<<< HEAD
     @IsObject()
     @IsValidKeyObjectId() // Validamos que las claves sean ObjectIds
     @IsValidValueRolename() // Validamos que las values sean RoleName
     members: Record<string, RoleName>;  // Clave: userId, Valor: role
 
+=======
+    @IsObject()  // Esto verifica que members sea un objeto, pero opcional
+    @IsOptional()
+    members?: Record<string, RoleName>; 
+  
+>>>>>>> 85c237f3a8dc86d0d84b4e4a9e31811ad1ca2327
     @IsString()
     @MinLength(4)
     @IsOptional()
