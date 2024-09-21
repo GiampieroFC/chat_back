@@ -15,7 +15,7 @@ import { AddParticipantDto } from './dto/add-participant.dto';
 import { User } from 'src/users/entities/user.entity';
 import { Role, RoleName } from 'src/roles/entities/role.entity';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { UpdateRoleDto } from './dto/update-role.dto';
+import { UpdateRoleDto } from 'src/roles/dto/update-role.dto';
 
 @Injectable()
 export class ChatRoomsService {
@@ -23,7 +23,7 @@ export class ChatRoomsService {
     @InjectModel(ChatRoom.name)
     private readonly chatRoomModel: Model<ChatRoom>,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   async findById(id: string) {
     const chatRoom = await this.chatRoomModel.findById(id);
