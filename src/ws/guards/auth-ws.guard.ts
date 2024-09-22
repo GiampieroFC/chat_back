@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
+import { Request } from 'express';
 import { Server, Socket } from 'socket.io';
 import { UsersService } from 'src/users/users.service';
 
@@ -20,11 +21,13 @@ export class AuthWsGuard implements CanActivate {
   ): Promise<boolean> {
 
     const client: Socket = context.switchToWs().getClient();
+    const req: Request = context.switchToHttp().getRequest();
 
     try {
 
       const user = await this.getUser(client);
       client.data.user = user;
+      req['user'] = user;
 
       return true;
 

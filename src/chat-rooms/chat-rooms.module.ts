@@ -16,5 +16,6 @@ import { AuthModule } from 'src/auth/auth.module';
     AuthModule,
     UsersModule
   ],
+  exports: [ChatRoomsService]
 })
 export class ChatRoomsModule { }

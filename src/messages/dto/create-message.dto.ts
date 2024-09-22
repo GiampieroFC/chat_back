@@ -1,11 +1,9 @@
 import { IsEnum, IsMongoId, IsOptional, IsString } from "class-validator";
 import { MessageType } from "../entities/message.entity";
+import { formatterArrOr } from "src/auth/utils/formatterArr";
+
 
 export class CreateMessageDto {
-
-    @IsMongoId()
-    @IsString()
-    sender: string;
 
     @IsMongoId()
     @IsString()
@@ -14,7 +12,7 @@ export class CreateMessageDto {
     @IsString()
     content: string;
 
-    @IsEnum(MessageType, { each: true, message: `messageType must be ${Object.values(MessageType).join(' or ')}` })
+    @IsEnum(MessageType, { each: true, message: `messageType must be ${formatterArrOr.format(Object.values(MessageType))}` })
     @IsString()
     @IsOptional()
     messageType: MessageType;

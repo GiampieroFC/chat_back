@@ -7,17 +7,11 @@ import {
   Param,
   Delete,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { ChatRoomsService } from './chat-rooms.service';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { UpdateChatRoomDto } from './dto/update-chat-room.dto';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { AddParticipantDto } from './dto/add-participant.dto';
-import { RoleName } from 'src/roles/entities/role.entity';
-import { User } from 'src/users/entities/user.entity';
-import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
 import { Request } from 'express';
 
 @Controller('chat-rooms')

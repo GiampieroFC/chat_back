@@ -1,9 +1,7 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { UpdateChatRoomDto } from './dto/update-chat-room.dto';
@@ -11,12 +9,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import { ChatRoom } from './entities/chat-room.entity';
 import { UsersService } from 'src/users/users.service';
-import { AddParticipantDto } from './dto/add-participant.dto';
 import { User } from 'src/users/entities/user.entity';
 import { RoleName } from 'src/roles/entities/role.entity';
-import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
 import { Request } from 'express';
-import internal from 'stream';
 
 
 @Injectable()

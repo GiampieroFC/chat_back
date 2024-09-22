@@ -7,10 +7,13 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { Request } from 'express';
 
 
 @Controller('messages')
@@ -18,8 +21,9 @@ export class MessagesController {
   constructor(private readonly messagesService: MessagesService) { }
 
   @Post()
-  create(@Body() createMessageDto: CreateMessageDto) {
-    return this.messagesService.create(createMessageDto);
+  @Auth()
+  create(@Body() createMessageDto: CreateMessageDto, @Req() req: Request) {
+    return this.messagesService.create(createMessageDto, req);
   }
 
   @Get()
@@ -30,6 +34,11 @@ export class MessagesController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.messagesService.findOne(id);
+  }
+
+  @Get('chat-room/:term')
+  findAllByChatRoom(@Param('term') term: string) {
+    return this.messagesService.findAllByChatRoom(term);
   }
 
   @Patch(':id')
