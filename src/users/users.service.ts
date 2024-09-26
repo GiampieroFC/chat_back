@@ -141,4 +141,18 @@ export class UsersService {
 
     return `This action removes a #${term} user`;
   }
+
+  async removeContact(term: string, id: string) {
+
+    const user = await this.findOne(term);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    delete user.contacts[id];
+
+    const updatedUser = await this.update(user.id, { contacts: user.contacts });
+
+    return updatedUser;
+  }
 }

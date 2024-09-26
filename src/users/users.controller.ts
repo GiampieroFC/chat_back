@@ -62,4 +62,9 @@ export class UsersController {
   remove(@Param('term') term: string) {
     return this.usersService.remove(term);
   }
+
+  @Delete(':term/contacts/:id')
+  removeContact(@Param('term') term: string, @Param('id') id: string) {
+    return this.usersService.removeContact(term, id);
+  }
 }
