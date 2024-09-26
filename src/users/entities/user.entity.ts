@@ -2,6 +2,11 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Role, RoleName } from 'src/roles/entities/role.entity';
 
+export class ContactSchema {
+
+    @Prop({ default: false })
+    isBlocked: boolean;
+};
 
 @Schema({ timestamps: true })
 export class User extends Document {
@@ -33,6 +38,12 @@ export class User extends Document {
     @Prop({ default: false })
     isConnected: boolean;
 
+    @Prop({
+        type: Object,
+        of: ContactSchema,
+    })
+    contacts: Record<string, ContactSchema>; // Aquí se almacenan los ids de usuario como claves y los roles como valores.
+
     // Propiedad para almacenar roles
     @Prop({
         type: [String], // Un array de strings
@@ -43,3 +54,4 @@ export class User extends Document {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+

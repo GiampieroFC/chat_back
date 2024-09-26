@@ -6,14 +6,18 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
+  Query,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { ShowContacts, UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+
+
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -25,9 +29,20 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+
   @Get(':term')
-  findOne(@Param('term') term: string) {
+  findOne(
+    @Param('term') term: string,
+  ) {
     return this.usersService.findOne(term);
+  }
+
+  @Get(':term/contacts')
+  findContacts(
+    @Param('term') term: string,
+    @Query('show') show: ShowContacts = ShowContacts.LIST,
+  ) {
+    return this.usersService.findContacts(term, show);
   }
 
   @Patch(':term')

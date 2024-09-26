@@ -10,8 +10,16 @@ import { ChatRoomsModule } from './chat-rooms/chat-rooms.module';
 import { RolesModule } from './roles/roles.module';
 import { WsModule } from './ws/ws.module';
 import { AuthModule } from './auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
+    JwtModule.register({
+      global: true,
+      secret: 'secret_key',
+      signOptions: {
+        expiresIn: '2h',
+      },
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
