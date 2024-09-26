@@ -7,7 +7,7 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './entities/user.entity';
+import { ContactSchema, User } from './entities/user.entity';
 import { isValidObjectId, Model } from 'mongoose';
 import { hashSync } from 'bcryptjs';
 
@@ -91,6 +91,17 @@ export class UsersService {
     }
 
     return new InternalServerErrorException('Check logs - Talk with an administrator');
+  }
+
+  async addContact(term: string, updateUserDto: UpdateUserDto) {
+
+    const user = await this.findOne(term);
+
+    const newContacts = { ...user.contacts, ...updateUserDto.contacts };
+
+    const updatedUser = await this.update(user.id, { contacts: newContacts });
+
+    return updatedUser;
   }
 
   async update(term: string, updateUserDto: UpdateUserDto) {

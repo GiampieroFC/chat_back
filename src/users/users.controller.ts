@@ -12,6 +12,7 @@ import {
 import { ShowContacts, UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ContactSchema } from './entities/user.entity';
 
 
 
@@ -28,7 +29,6 @@ export class UsersController {
   findAll() {
     return this.usersService.findAll();
   }
-
 
   @Get(':term')
   findOne(
@@ -48,6 +48,14 @@ export class UsersController {
   @Patch(':term')
   update(@Param('term') term: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(term, updateUserDto);
+  }
+
+  @Patch(':term/contacts')
+  addContact(
+    @Param('term') term: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.addContact(term, updateUserDto);
   }
 
   @Delete(':term')

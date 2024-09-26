@@ -73,7 +73,7 @@ export function IsValidValueContact(validationOptions?: ValidationOptions) {
                     return true; // Both keys and values are valid
                 },
                 defaultMessage(): string {
-                    return `The values os "contact" must be valid roles: isBlocked`;
+                    return `The values os "contact" must be valid: isBlocked`;
                 },
             },
         });
