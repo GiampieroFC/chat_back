@@ -7,9 +7,12 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { ContactSchema, User } from './entities/user.entity';
-import { isValidObjectId, Model } from 'mongoose';
+import { User } from './entities/user.entity';
+import { isValidObjectId, Model, Types } from 'mongoose';
 import { hashSync } from 'bcryptjs';
+
+import mongoose from 'mongoose';
+const { ObjectId } = mongoose.Types;
 
 export enum ShowContacts {
   FULL = 'full',
@@ -87,7 +90,13 @@ export class UsersService {
     }
 
     if (contacts === ShowContacts.FULL) {
-      return user.contacts;
+
+      const contactsList = Object.keys(user.contacts).map(key => new ObjectId(key));
+
+      const foundContacts = await this.userModel.find({ _id: { $in: contactsList } });
+
+
+      return foundContacts;
     }
 
     return new InternalServerErrorException('Check logs - Talk with an administrator');
